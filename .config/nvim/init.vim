@@ -1,15 +1,23 @@
 call plug#begin('~/.nvim/plugged')
 
+"styling
 Plug 'mechatroner/rainbow_csv'
 Plug 'gruvbox-community/gruvbox'
+Plug 'ap/vim-css-color'
+
+"file manager
 Plug 'preservim/nerdtree'       " Tree view Folders and Files
-Plug 'tpope/vim-surround'       " Surround with ([{'`\", etc...
+
+"linter and stuff
 Plug 'Shougo/deoplete.nvim'         " Autocomplete
 Plug 'deoplete-plugins/deoplete-jedi'
+
+"others
+Plug 'tpope/vim-surround'       " Surround with ([{'`\", etc...
 Plug 'jiangmiao/auto-pairs'     " Autopair brackets, quotes, etc...
 Plug 'tpope/vim-commentary'     " Simple code Commenter
 Plug 'unblevable/quick-scope'       " Vim motion highlighting
-Plug 'ap/vim-css-color'
+
 
 "fzf 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
