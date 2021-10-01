@@ -89,7 +89,7 @@ bindkey '^e' edit-command-line
 
 [ -f "$HOME/.aliasrc" ] && source "$HOME/.aliasrc"
 
-
+[[ -s $HOME/.nvm/nvm.sh ]] && source $HOME/.nvm/nvm.sh  # This loads NVM
 
 # Load zsh-autosuggestions
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh 2>/dev/null
