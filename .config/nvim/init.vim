@@ -1,39 +1,40 @@
 call plug#begin('~/.nvim/plugged')
 
-"styling
+"Styling
 Plug 'mechatroner/rainbow_csv'
 Plug 'gruvbox-community/gruvbox'
 Plug 'ap/vim-css-color'
+" Plug 'joshdick/onedark.vim'
 
-"file manager
+"File manager
 Plug 'preservim/nerdtree'       " Tree view Folders and Files
 
-"linter and stuff
+"Linter and stuff
 Plug 'Shougo/deoplete.nvim'         " Autocomplete
 Plug 'deoplete-plugins/deoplete-jedi'
+Plug 'dense-analysis/ale'       " Linters and Fixers
 
-"others
+"Others
 Plug 'tpope/vim-surround'       " Surround with ([{'`\", etc...
 Plug 'jiangmiao/auto-pairs'     " Autopair brackets, quotes, etc...
 Plug 'tpope/vim-commentary'     " Simple code Commenter
 Plug 'unblevable/quick-scope'       " Vim motion highlighting
 
 
-"fzf 
+"Fzf
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
 
 
 " markdown
-Plug 'godlygeek/tabular' 
+Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
 
 " markdown preview
  Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
 
 
-" Plug 'joshdick/onedark.vim'
 call plug#end()
 
 set number
@@ -97,13 +98,13 @@ set encoding=utf-8
 
 " vim-markdown
 autocmd FileType markdown set conceallevel=0
-autocmd FileType markdown normal zR 
+autocmd FileType markdown normal zR
 let g:mkdp_auto_close=0
 let g:mkdp_refresh_slow=1
 let g:mkdp_markdown_css='/home/nick/.local/lib/github-markdown-css/github-markdown.css'
 
 
-" preview 
+" preview
 let g:mkdp_refresh_slow = 0
 
 
@@ -131,7 +132,7 @@ call deoplete#custom#source('ale', 'rank', 999)
 
 " fzf
 " sync with Intelij keymaps
-nnoremap <silent> <C-p> :Files<CR> 
+nnoremap <silent> <C-p> :Files<CR>
 nnoremap <silent> <C-g> :GFiles<CR>
 nnoremap <silent> <C-b> :Buffers<CR>
 nnoremap <C-f> :Rg<Space>
@@ -151,3 +152,4 @@ autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
 autocmd FileType Vagrantfile setlocal ts=2 sts=2 sw=2 expandtab
 autocmd FileType Dockerfile setlocal ts=2 sts=2 sw=2 expandtab
 
+" set omnifunc=ale#completion#OmniFunc
