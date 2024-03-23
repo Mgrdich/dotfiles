@@ -1,0 +1,224 @@
+set number
+set relativenumber
+set preview true
+set drawbox true
+set ignorecase true
+set cursorpreviewfmt ""
+
+# Custom Functions
+/* cmd open ${{ */
+/*     case $(file --mime-type "$f" -bL) in */
+/*         text/*|application/json) $EDITOR "$f";; */
+/*     esac */
+/* }} */
+
+cmd mkdir %{{
+  printf "Directory Name: "
+  read ans
+  mkdir $ans
+}}
+
+cmd mkfile ${{
+  printf "File Name: "
+  read ans
+  $EDITOR $ans
+}}
+
+cmd chmod %{{
+  printf "Mode Bits: "
+  read ans
+
+  for file in "$fx"
+  do
+    chmod $ans $file
+  done
+
+  lf -remote 'send reload'
+}}
+
+cmd sudomkfile %{{
+  printf "File Name: "
+  read ans
+  sudo $EDITOR $ans
+}}
+
+
+cmd on-select &{{
+    lf -remote "send $id set statfmt \"$(exa -ld --color=always "$f")\""
+}}
+
+cmd fzf_jump_sub ${{
+    res="$(find . | fzf --reverse --header='Jump to location')"
+    if [ -n "$res" ]; then
+        if [ -d "$res" ]; then
+            cmd="cd"
+        else
+            cmd="select"
+        fi
+        res="$(printf '%s' "$res" | sed 's/\\/\\\\/g;s/"/\\"/g')"
+        lf -remote "send $id $cmd \"$res\""
+    fi
+}}
+
+
+cmd fzf_jump ${{
+    res="$(find . -maxdepth 1 | fzf --reverse --header='Jump to location')"
+    if [ -n "$res" ]; then
+        if [ -d "$res" ]; then
+            cmd="cd"
+        else
+            cmd="select"
+        fi
+        res="$(printf '%s' "$res" | sed 's/\\/\\\\/g;s/"/\\"/g')"
+        lf -remote "send $id $cmd \"$res\""
+    fi
+}}
+
+cmd fzf_search ${{
+    RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case "
+    res="$(
+        FZF_DEFAULT_COMMAND="$RG_PREFIX ''" \
+            fzf --bind "change:reload:$RG_PREFIX {q} || true" \
+            --ansi --layout=reverse --header 'Search in files' \
+            | cut -d':' -f1 | sed 's/\\/\\\\/g;s/"/\\"/g'
+    )"
+    [ -n "$res" ] && lf -remote "send $id select \"$res\""
+}}
+
+/* cmd paste $cp-p --lf-paste $id */
+
+
+# Archive bindings
+cmd unarchive ${{
+  case "$f" in
+      *.zip) unzip "$f" ;;
+      *.tar.gz) tar -xzvf "$f" ;;
+      *.tar.bz2) tar -xjvf "$f" ;;
+      *.tar) tar -xvf "$f" ;;
+      *) echo "Unsupported format" ;;
+  esac
+}}
+
+cmd zip ${{
+    zip -r "$f" "$(basename "$f")"
+}}
+
+
+cmd tar ${{
+    tar -czvf "$(basename "$f").tar" "$(basename "$f")"
+}}
+
+
+/* # zip directories/files */
+
+cmd zipselected ${{
+    set -f
+    mkdir temp_TEMP_zip
+    cp -r $fx temp_TEMP_zip
+    (cd temp_TEMP_zip/ && zip -r ARCHIEVED.zip .)
+    rm -rf temp_TEMP_zip/
+}}
+
+/* # tar directories/files */
+
+cmd tarselected ${{
+    set -f
+    mkdir temp_TEMP_tar
+    cp -r $fx temp_TEMP_tar
+    (cd temp_TEMP_tar && tar cvzf ARCHIEVED.tar.gz .)
+    rm -rf temp_TEMP_tar/
+}}
+
+
+# trash command with confirmation
+cmd trash %{{
+  for f in $fx; do
+    printf "Trash $f? [Y/n/a] "
+    read -r ans
+    case "$ans" in
+      Y*|y*) trash "$f"; printf 'Deleted %s.\n' "$f";;
+      A*|a*) trash $fx; printf 'Deleted all files.\n'; break;;
+    esac
+  done
+}}
+
+# empty the trash
+cmd cleantrash %{{
+  printf "Empty trash? [Y/n] "
+  read -r ans
+  case "$ans" in
+    Y*|y*) trash -ey; printf "Emptied.";;
+    *) printf "Not emptying.";;
+  esac
+}}
+
+
+cmd replaceSpaceUnderscoreForDir ${{
+    for file in *;
+    do
+        mv "$file" `echo $file | tr ' ' '_'`;
+    done
+}}
+
+
+cmd replaceSpaceUnderscoreForSingle ${{
+      mv "$f" `echo $f | tr ' ' '_'`;
+}}
+
+
+# Bindings
+# Remove some defaults
+map m
+map d
+map c
+map u
+map e
+
+# check this issue
+# file openers
+map ee $$editor "$f"
+map u $view "$f"
+
+# archive mappings
+map az zip
+/* map asz zipselected */ # now working
+map at tar
+/* map ast tarselected */ # not working
+map au unarchive
+
+#replace currrent Directory space underscore
+map cdn replaceSpaceUnderscoreForDir
+map cn replaceSpaceUnderscoreForSingle
+
+
+# basic functions
+map . set hidden!
+map dd trash
+map ct cleantrash
+map p paste
+map x cut
+map y copy
+map o open
+map mf mkfile
+map mr sudomkfile
+map md mkdir
+map ms $mkscript
+map ch chmod
+map r rename
+map H top
+map L bottom
+map R reload
+map C clear
+map U unselect # this is unselect all
+
+map f $vi $(fzf)
+map sf :fzf_jump_sub
+map cf :fzf_jump
+map ff :fzf_search
+
+# Go To
+map gdoc cd ~/Documents
+map gdes cd ~/Desktop
+map gdow cd ~/Downloads
+map gaua cd '~/Desktop/AUA/AUA_Books'
+map ~ cd ~
